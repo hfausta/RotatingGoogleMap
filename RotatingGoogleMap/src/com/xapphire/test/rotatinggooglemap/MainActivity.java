@@ -63,9 +63,10 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 	public void onSensorChanged(SensorEvent event) {
 		/*
 		 * http://www.codingforandroid.com/2011/01/using-orientation-sensors-simple.html
+		 * https://github.com/iutinvg/compass/blob/master/src/com/iutinvg/compass/Compass.java
 		 */
 		
-		final float alpha = 0.97f;
+		final float alpha = 0.99f;
 		
 		synchronized(this) {
 			if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -94,7 +95,7 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 			        .target(googleMap.getCameraPosition().target)
 			        .zoom(googleMap.getCameraPosition().zoom)
 			        .bearing(bearingRotation)
-			        .build()), 100, null);
+			        .build()), 1, null);
 				}
 			}	
 		}
