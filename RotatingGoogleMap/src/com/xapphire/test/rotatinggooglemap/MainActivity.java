@@ -78,12 +78,11 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 				float bearingRotation = (float) (Math.toDegrees(orientation[0]) + 360) % 360;
 				Toast.makeText(this, "Rotation " + bearingRotation, Toast.LENGTH_SHORT).show();
 				
-				googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
 		        .target(googleMap.getCameraPosition().target)
 		        .zoom(googleMap.getCameraPosition().zoom)
 		        .bearing(bearingRotation)
 		        .build()));
-				
 			}
 		}
 	}
