@@ -32,17 +32,12 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_main);
         initializeMap();
         googleMap.getUiSettings().setCompassEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
-        /*googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-        .target(googleMap.getCameraPosition().target)
-        .zoom(googleMap.getCameraPosition().zoom)
-        .bearing(event.values[0])
-        .build()));*/
+        
     }
 
     @Override
@@ -80,13 +75,13 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 			if(success) {
 				float orientation[] = new float[3];
 				SensorManager.getOrientation(R, orientation);
-				float bearingRotation = -360*orientation[0]/(2*3.14159f);
-				Toast.makeText(this, "Rotation " + bearingRotation, Toast.LENGTH_LONG).show();
+				float bearingRotation = (float) (Math.toDegrees(orientation[0]) + 360) % 360;
+				Toast.makeText(this, "Rotation " + bearingRotation, Toast.LENGTH_SHORT).show();
 				
 				googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
 		        .target(googleMap.getCameraPosition().target)
 		        .zoom(googleMap.getCameraPosition().zoom)
-		        .bearing(0)
+		        .bearing(bearingRotation)
 		        .build()));
 				
 			}
