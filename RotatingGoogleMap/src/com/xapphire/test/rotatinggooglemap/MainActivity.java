@@ -23,8 +23,8 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
 	private Sensor magneticField;
-	private float[] accelerometerValues;
-	private float[] magneticFieldValues;
+	private float[] accelerometerValues = new float[3];
+	private float[] magneticFieldValues = new float[3];
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,26 +64,39 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 		/*
 		 * http://www.codingforandroid.com/2011/01/using-orientation-sensors-simple.html
 		 */
-		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) accelerometerValues = event.values;
-		if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) magneticFieldValues = event.values;
 		
-		if(accelerometerValues != null && magneticFieldValues != null) {
-			float R[] = new float[9];
-			float I[] = new float[9];
-			boolean success = SensorManager.getRotationMatrix(R, I, accelerometerValues, magneticFieldValues);
-			
-			if(success) {
-				float orientation[] = new float[3];
-				SensorManager.getOrientation(R, orientation);
-				float bearingRotation = (float) (Math.toDegrees(orientation[0]) + 360) % 360;
-				Toast.makeText(this, "Rotation " + bearingRotation, Toast.LENGTH_SHORT).show();
-				
-				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-		        .target(googleMap.getCameraPosition().target)
-		        .zoom(googleMap.getCameraPosition().zoom)
-		        .bearing(bearingRotation)
-		        .build()));
+		final float alpha = 0.97f;
+		
+		synchronized(this) {
+			if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+				accelerometerValues[0] = alpha * accelerometerValues[0] + (1 - alpha) * event.values[0];
+				accelerometerValues[1] = alpha * accelerometerValues[1] + (1 - alpha) * event.values[1];
+				accelerometerValues[2] = alpha * accelerometerValues[2] + (1 - alpha) * event.values[2];
 			}
+			if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+				magneticFieldValues[0] = alpha * magneticFieldValues[0] + (1 - alpha) * event.values[0];
+				magneticFieldValues[1] = alpha * magneticFieldValues[1] + (1 - alpha) * event.values[1];
+				magneticFieldValues[2] = alpha * magneticFieldValues[2] + (1 - alpha) * event.values[2];
+			}
+			
+			if(accelerometerValues != null && magneticFieldValues != null) {
+				float R[] = new float[9];
+				float I[] = new float[9];
+				boolean success = SensorManager.getRotationMatrix(R, I, accelerometerValues, magneticFieldValues);
+				
+				if(success) {
+					float orientation[] = new float[3];
+					SensorManager.getOrientation(R, orientation);
+					float bearingRotation = (((float) Math.toDegrees(orientation[0])) + 360) % 360;
+					Toast.makeText(this, "Rotation " + bearingRotation, Toast.LENGTH_SHORT).show();
+					
+					googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+			        .target(googleMap.getCameraPosition().target)
+			        .zoom(googleMap.getCameraPosition().zoom)
+			        .bearing(bearingRotation)
+			        .build()), 100, null);
+				}
+			}	
 		}
 	}
 	
